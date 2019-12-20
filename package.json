@@ -1,0 +1,71 @@
+{
+  "name": "typed-streams",
+  "version": "1.0.0",
+  "description": "Strongly typed streams so that streams are piped to the intended stream handlers",
+  "private": false,
+  "types": "dist/index.d.ts",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "engines": {
+    "node": ">=10.13",
+    "npm": ">=6.4.1"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "keywords": [
+    "stream",
+    "typescript",
+    "typed",
+    "streams"
+  ],
+  "scripts": {
+    "prebuild": "cti create ./src",
+    "build": "npm run format:prettier && npm run lint && tsc -sourcemap",
+    "test": "mocha \"dist/test/**/*.js\"",
+    "build:watch": "tsc -w",
+    "clean": "rimraf dist && rimraf node_modules",
+    "audit": "../../bin/npm-audit.sh",
+    "prepublishOnly": "npm run clean && npm run install:prod && npm run build && npm run test && npm run prune:prod",
+    "preversion": "npm run build && npm run test",
+    "format:prettier": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "lint": "tslint -p tsconfig.json",
+    "install:prod": "npm ci",
+    "prune:prod": "npm prune --production",
+    "refresh-package-locks": "npm run clean && find . -iname package-lock.json -delete && npm install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:hiro5id/typed-streams.git"
+  },
+  "dependencies": {
+    "app-root-path": "^3.0.0",
+    "callsites": "^3.1.0",
+    "json-stringify-safe": "^5.0.1",
+    "source-map-support": "^0.5.16",
+    "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "@types/app-root-path": "^1.2.4",
+    "@types/chai": "^4.2.3",
+    "@types/cheerio": "^0.22.15",
+    "@types/json-stringify-safe": "^5.0.0",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.7.7",
+    "@types/request": "^2.48.3",
+    "@types/request-promise": "^4.1.45",
+    "@types/rimraf": "^2.0.2",
+    "chai": "^4.2.0",
+    "cheerio": "^1.0.0-rc.3",
+    "create-ts-index": "^1.11.1",
+    "mocha": "^6.2.0",
+    "prettier": "^1.18.2",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.5",
+    "rimraf": "^3.0.0",
+    "ts-node": "^8.4.1",
+    "tslint": "^5.20.0",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.6.3"
+  }
+}
