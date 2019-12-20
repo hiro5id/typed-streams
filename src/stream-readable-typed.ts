@@ -1,11 +1,15 @@
 import * as NodeStream from 'stream';
 import { Duplex } from './stream-duplex-typed';
+import { Transform } from './stream-transform-typed';
 import { Writable } from './stream-writable-typed';
-import { Transform } from './typed-streams';
 
 export abstract class Readable<Out> extends NodeStream.Readable {
   // noinspection JSUnusedGlobalSymbols
   public 'typechecking-field': Out | undefined = undefined;
+  /**
+   * give this stream transform a name so that we can easily reference it in logs
+   */
+  public abstract readonly name: string;
 
   // noinspection TypeScriptAbstractClassConstructorCanBeMadeProtected
   constructor(opts = {}) {
@@ -23,5 +27,25 @@ export abstract class Readable<Out> extends NodeStream.Readable {
   public pipe(destination: Writable<Out>, options?: { end?: boolean }): Writable<Out>;
   public pipe(destination: NodeJS.WritableStream, options?: { end?: boolean }): NodeJS.WritableStream {
     return super.pipe(destination, options);
+  }
+
+  /**
+   * Syntactic sugar to easily add error handlers between pipe stages
+   * @param func - the error function
+   */
+  public err(func: (err: string) => void): Readable<Out> {
+    this.on('error', func);
+    return this;
+  }
+
+  public toPromiseFinish(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      this.on('finish', () => {
+        resolve();
+      });
+      this.on('error', err => {
+        reject(err);
+      });
+    });
   }
 }

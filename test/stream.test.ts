@@ -2,27 +2,84 @@
 import { Readable, Transform } from '../src';
 
 describe('stream', () => {
-  it('streams work', async () => {
 
+  it('parallel streaming, 2 streams and await their finish', async () => {
     const carFactory = new NewCarFactory();
     const newCarBuyer = new NewCarBuyer(3);
     const newCarThief = new NewCarThief();
     const stolenCarBuyer = new StolenCarBuyer(5);
     const usedCarBuyer = new UsedCarBuyer(10);
 
-    await carFactory.pipe(newCarThief).pipe(stolenCarBuyer).pipe(usedCarBuyer);
-    await carFactory.pipe(newCarBuyer);
+    await carFactory.pipe(newCarThief).pipe(stolenCarBuyer).pipe(usedCarBuyer).toPromiseFinish();
+    await carFactory.pipe(newCarBuyer).toPromiseFinish();
 
     /**
      * Uncomment below line to demonstrate typescript give an error for "newCarThief"
      * because a used car cannot be piped into a thief that only wants to steal new cars
      */
-    // const cars = carFactory.pipe(newCarBuyer).pipe(newCarThief);
+    // carFactory.pipe(newCarBuyer).pipe(newCarThief);
 
+    console.log('done');
+  });
+
+  it('serial streaming, await one stream before starting another', async () => {
+
+    const carFactory1 = new NewCarFactory();
+    const carFactory2 = new NewCarFactory();
+    const newCarBuyer = new NewCarBuyer(3);
+    const newCarThief = new NewCarThief();
+    const stolenCarBuyer = new StolenCarBuyer(5);
+    const usedCarBuyer = new UsedCarBuyer(10);
+
+    carFactory1
+      .pipe(newCarThief)
+      .pipe(stolenCarBuyer)
+      .pipe(usedCarBuyer)
+      .toPromiseFinish()
+      .then(() => {
+          console.log('finished1');
+          carFactory2.pipe(newCarBuyer).toPromiseFinish()
+            .then(()=> {
+              console.log('finished2');
+            });
+      });
+    console.log('done');
+  });
+
+  // Todo: add a stage that throws an error and watch it catch it
+  // Todo: see if there is a way to:   If there is no err event registered, pass the error to the next pipeline so that it can be handled at thend by the promise finish or a single error event.   Make sure you pass on the stack trace.
+  it('allow adding of error events at each stage', async () => {
+
+    const carFactory1 = new NewCarFactory();
+    const carFactory2 = new NewCarFactory();
+    const newCarBuyer = new NewCarBuyer(3);
+    const newCarThief = new NewCarThief();
+    const stolenCarBuyer = new StolenCarBuyer(5);
+    const usedCarBuyer = new UsedCarBuyer(10);
+
+    carFactory1
+      .err(err => { console.error(`error at carFactory1 ${err}`)})
+      .pipe(newCarThief)
+      .err(err => { console.error(`error at newCarThief ${err}`)})
+      .pipe(stolenCarBuyer)
+      .err(err => { console.error(`error at stolenCarBuyer ${err}`)})
+      .pipe(usedCarBuyer)
+      .err(err => { console.error(`error at usedCarBuyer ${err}`)})
+      .toPromiseFinish()
+      .then(() => {
+        console.log('finished1');
+        carFactory2.pipe(newCarBuyer).toPromiseFinish()
+          .then(()=> {
+            console.log('finished2');
+          });
+      });
     console.log('done');
   });
 });
 
+/******
+ * Below are example classes to be used for the tests above
+ *****/
 
 interface INewCar {
   newCarNumber: number;
@@ -37,6 +94,7 @@ interface IStolenCar {
 }
 
 class NewCarFactory extends Readable<INewCar> {
+  public readonly name: string = NewCarFactory.name;
   private i = 0;
 
   constructor() {
@@ -55,6 +113,8 @@ class NewCarFactory extends Readable<INewCar> {
 }
 
 class NewCarBuyer extends Transform<INewCar, IUsedCar[]> {
+
+  public readonly name: string = NewCarBuyer.name;
   private newCars: INewCar[] = [];
 
   constructor(private readonly numberOfCarsToBuyAtATime: number) {
@@ -86,6 +146,7 @@ class NewCarBuyer extends Transform<INewCar, IUsedCar[]> {
 }
 
 class UsedCarBuyer extends Transform<IUsedCar[], IUsedCar[]> {
+  public readonly name: string = UsedCarBuyer.name;
   private newCars: IUsedCar[] = [];
 
   constructor(private readonly numberOfCarsToBuyAtATime: number) {
@@ -117,6 +178,7 @@ class UsedCarBuyer extends Transform<IUsedCar[], IUsedCar[]> {
 }
 
 class StolenCarBuyer extends Transform<IStolenCar, IUsedCar[]> {
+  public readonly name: string = StolenCarBuyer.name;
   private newCars: IStolenCar[] = [];
 
   constructor(private readonly numberOfCarsToBuyAtATime: number) {
@@ -149,6 +211,7 @@ class StolenCarBuyer extends Transform<IStolenCar, IUsedCar[]> {
 
 
 class NewCarThief extends Transform<INewCar, IStolenCar> {
+  public readonly name: string = NewCarThief.name;
   constructor() {
     super({objectMode: true});
   }
