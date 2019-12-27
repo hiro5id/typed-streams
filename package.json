@@ -32,7 +32,8 @@
     "lint": "tslint -p tsconfig.json",
     "install:prod": "npm ci",
     "prune:prod": "npm prune --production",
-    "refresh-package-locks": "npm run clean && find . -iname package-lock.json -delete && npm install"
+    "refresh-package-locks": "npm run clean && find . -iname package-lock.json -delete && npm install",
+    "interactive-publish": "np"
   },
   "repository": {
     "type": "git",
@@ -49,6 +50,7 @@
     "chai": "^4.2.0",
     "create-ts-index": "^1.11.1",
     "mocha": "^6.2.0",
+    "np": "^5.2.1",
     "prettier": "^1.18.2",
     "rimraf": "^3.0.0",
     "ts-node": "^8.4.1",
