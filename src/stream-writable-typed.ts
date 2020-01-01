@@ -1,3 +1,8 @@
+/**
+ * The generic types idea was based on the MIT licensed project https://github.com/forbesmyester/stronger-typed-streams
+ * Originally published by Matt Forrester https://github.com/forbesmyester
+ * Types improved and additional features implemented by Roberto Sebestyen roberto@sebestyen.ca https://github.com/hiro5id
+ */
 import * as NodeStream from 'stream';
 import { commonToPromiseFinish } from './common-to-promise-finish';
 
