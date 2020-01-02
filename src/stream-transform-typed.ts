@@ -18,13 +18,23 @@ export abstract class Transform<In, Out> extends NodeStream.Transform {
    *   public readonly name: string = MyClass.name;
    */
   public abstract readonly name: string;
+  private readonly _baseTransform: (chunk: In, encoding: string, callback: NodeStream.TransformCallback) => void;
   // noinspection TypeScriptAbstractClassConstructorCanBeMadeProtected
   constructor(opts = {}) {
     super(opts);
+    this._baseTransform = super._transform;
   }
 
   public push(chunk: Out | null, encoding?: string): boolean {
     return super.push(chunk, encoding);
+  }
+
+  public _transformEx(chunk: In, encoding: string, callback: (error?: Error | null, data?: any) => void): void {
+    this._baseTransform(chunk, encoding, callback);
+  }
+
+  public _flushEx(callback: (error?: Error | null, data?: any) => void): void {
+    callback();
   }
 
   public pipe<NextDuplexOut>(destination: Duplex<Out, NextDuplexOut>, options?: { end?: boolean }): Duplex<Out, NextDuplexOut>;
@@ -46,5 +56,25 @@ export abstract class Transform<In, Out> extends NodeStream.Transform {
 
   public toPromiseFinish(): Promise<void> {
     return commonToPromiseFinish.call(this);
+  }
+
+  public _transform(chunk: In, encoding: string, callback: (error?: Error | null, data?: any) => void): void {
+    process.nextTick(() => {
+      try {
+        this._transformEx(chunk, encoding, callback);
+      } catch (err) {
+        callback(err);
+      }
+    });
+  }
+
+  public _flush(callback: (error?: Error | null, data?: any) => void): void {
+    process.nextTick(() => {
+      try {
+        this._flushEx(callback);
+      } catch (err) {
+        callback(err);
+      }
+    });
   }
 }

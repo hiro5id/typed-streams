@@ -16,12 +16,12 @@ export abstract class Writable<In> extends NodeStream.Writable {
    */
   public abstract readonly name: string;
 
+  private readonly _baseWrite: (chunk: any, encoding: string, callback: (error?: Error | null) => void) => void;
   // noinspection TypeScriptAbstractClassConstructorCanBeMadeProtected
   constructor(opts = {}) {
     super(opts);
+    this._baseWrite = super._write;
   }
-
-  public abstract _write(chunk: In, encoding: string, callback: (error?: Error | null) => void): void;
 
   /**
    * Syntactic sugar to easily add error handlers between pipe stages
@@ -34,5 +34,19 @@ export abstract class Writable<In> extends NodeStream.Writable {
 
   public toPromiseFinish(): Promise<void> {
     return commonToPromiseFinish.call(this);
+  }
+
+  public _writeEx(chunk: In, encoding: string, callback: (error?: Error | null) => void): void {
+    this._baseWrite(chunk, encoding, callback);
+  }
+
+  public _write(chunk: In, encoding: string, callback: (error?: Error | null) => void): void {
+    process.nextTick(() => {
+      try {
+        this._writeEx(chunk, encoding, callback);
+      } catch (err) {
+        callback(err);
+      }
+    });
   }
 }

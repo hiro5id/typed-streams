@@ -149,6 +149,83 @@ describe('stream', () => {
     ]);
   });
 
+
+  it('Error is bubbled up properly when stream is implemented with extended(Ex) helpers', async () => {
+    const messages: string[] = [];
+
+    const carFactoryA = new NewCarFactory("factory-A", 1, 20, messages);
+    const carFactoryB = new NewCarFactory("factory-B", 21, 40, messages);
+    const newCarBuyer = new NewCarBuyer(3, messages);
+    const newCarThief = new NewCarThief(messages);
+    const stolenCarBuyer = new StolenCarBuyerErrorEx(5, messages);
+    const usedCarBuyer = new UsedCarBuyer(10, messages);
+
+    const pipe1: Promise<void> = carFactoryA.pipe(newCarThief).pipe(stolenCarBuyer).pipe(usedCarBuyer).toPromiseFinish();
+    const pipe2 = carFactoryB.pipe(newCarBuyer).toPromiseFinish();
+    let caughtError: Error;
+
+    try {
+      await Promise.all([pipe1, pipe2]);
+    } catch(err) {
+      caughtError = err;
+    }
+
+    expect(caughtError!.message).eql("Error in StolenCarBuyer this is a test");
+    expect(messages).eql([
+      "Stole new car number 1",
+      "factory-A factory produced car# 1",
+      "factory-B factory produced car# 21",
+      "shopping for stolen car# 1",
+      "shopping for NEW car#  21",
+      "factory-B factory produced car# 22",
+      "shopping for NEW car#  22",
+      "factory-B factory produced car# 23",
+      "shopping for NEW car#  23",
+      "purchased 3 car numbers: 21,22,23",
+      "factory-B factory produced car# 24",
+      "shopping for NEW car#  24",
+      "factory-B factory produced car# 25",
+      "shopping for NEW car#  25",
+      "factory-B factory produced car# 26",
+      "shopping for NEW car#  26",
+      "purchased 3 car numbers: 24,25,26",
+      "factory-B factory produced car# 27",
+      "shopping for NEW car#  27",
+      "factory-B factory produced car# 28",
+      "shopping for NEW car#  28",
+      "factory-B factory produced car# 29",
+      "shopping for NEW car#  29",
+      "purchased 3 car numbers: 27,28,29",
+      "factory-B factory produced car# 30",
+      "shopping for NEW car#  30",
+      "factory-B factory produced car# 31",
+      "shopping for NEW car#  31",
+      "factory-B factory produced car# 32",
+      "shopping for NEW car#  32",
+      "purchased 3 car numbers: 30,31,32",
+      "factory-B factory produced car# 33",
+      "shopping for NEW car#  33",
+      "factory-B factory produced car# 34",
+      "shopping for NEW car#  34",
+      "factory-B factory produced car# 35",
+      "shopping for NEW car#  35",
+      "purchased 3 car numbers: 33,34,35",
+      "factory-B factory produced car# 36",
+      "shopping for NEW car#  36",
+      "factory-B factory produced car# 37",
+      "shopping for NEW car#  37",
+      "factory-B factory produced car# 38",
+      "shopping for NEW car#  38",
+      "purchased 3 car numbers: 36,37,38",
+      "factory-B factory produced car# 39",
+      "shopping for NEW car#  39",
+      "factory-B factory produced car# 40",
+      "shopping for NEW car#  40",
+      "factory-B factory finished producing cars 21...40",
+      "purchased 2 car numbers: 39,40"
+    ]);
+  });
+
   it('serial streaming, 2 streams one after the other', async () => {
     const messages: string[] = [];
 
@@ -343,27 +420,23 @@ class NewCarBuyer extends Transform<INewCar, IUsedCar[]> {
     super({ objectMode: true });
   }
 
-  public _flush(callback: (error?: (Error | null), data?: any) => void): void {
-    process.nextTick(() => {
-      if (this.newCars.length) {
-        this.push(this.newCars.map(m => ({ usedCarNumber: m.newCarNumber } as IUsedCar)));
-        this.messages.push(`purchased ${this.newCars.length} car numbers: ${this.newCars.map(m => m.newCarNumber).join(',')}`);
-      }
-      this.newCars = [];
-      callback();
-    });
+  public _flushEx(callback: (error?: (Error | null), data?: any) => void): void {
+    console.log(`called _flushEx from extended class`);
+    if (this.newCars.length) {
+      this.push(this.newCars.map(m => ({ usedCarNumber: m.newCarNumber } as IUsedCar)));
+      this.messages.push(`purchased ${this.newCars.length} car numbers: ${this.newCars.map(m => m.newCarNumber).join(',')}`);
+    }
+    this.newCars = [];
+    callback();
   }
 
-  // tslint:disable-next-line:variable-name
-  public _transform(chunk: INewCar, _encoding: string, callback: (error?: (Error | null), data?: any) => void): void {
-    process.nextTick(() => {
-      this.newCars.push(chunk);
-      this.messages.push(`shopping for NEW car#  ${chunk.newCarNumber}`);
-      if (this.newCars.length >= this.numberOfCarsToBuyAtATime) {
-        return this._flush(callback);
-      }
-      callback();
-    });
+  public _transformEx(chunk: INewCar, _encoding: string, callback: (error?: (Error | null), data?: any) => void): void {
+    this.newCars.push(chunk);
+    this.messages.push(`shopping for NEW car#  ${chunk.newCarNumber}`);
+    if (this.newCars.length >= this.numberOfCarsToBuyAtATime) {
+      return this._flush(callback);
+    }
+    callback();
   }
 }
 
@@ -481,6 +554,37 @@ class StolenCarBuyer extends Transform<IStolenCar, IUsedCar[]> {
       }
       callback();
     });
+  }
+}
+
+
+class StolenCarBuyerErrorEx extends Transform<IStolenCar, IUsedCar[]> {
+  public readonly name: string = StolenCarBuyer.name;
+  private newCars: IStolenCar[] = [];
+
+  constructor(
+    private readonly numberOfCarsToBuyAtATime: number,
+    private readonly messages: string[]) {
+    super({ objectMode: true });
+  }
+
+  public _flushEx(callback: (error?: (Error | null), data?: any) => void): void {
+    if (this.newCars.length) {
+      this.push(this.newCars.map(m => ({ usedCarNumber: m.stolenCarNumber } as IUsedCar)));
+      this.messages.push(`purchased STOLEN ${this.newCars.length} car numbers: ${this.newCars.map(m => m.stolenCarNumber).join(',')}`);
+    }
+    this.newCars = [];
+    callback();
+  }
+
+  public _transformEx(chunk: IStolenCar, _encoding: string, callback: (error?: (Error | null), data?: any) => void): void {
+    this.newCars.push(chunk);
+    this.messages.push(`shopping for stolen car# ${chunk.stolenCarNumber}`);
+    if (this.newCars.length >= this.numberOfCarsToBuyAtATime) {
+      return this._flush(callback);
+    }
+    throw new Error('this is a test');
+    // callback();
   }
 }
 
