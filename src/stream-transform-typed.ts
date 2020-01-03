@@ -33,7 +33,27 @@ export abstract class Transform<In, Out> extends NodeStream.Transform {
     this._baseTransform(chunk, encoding, callback);
   }
 
+  /**
+   * A callback function (optionally with an error argument and data) to be called when remaining data has been flushed.
+   * This function MUST NOT be called by application code directly. It should be implemented by child classes, and called by the internal Readable class methods only.
+   *
+   * In some cases, a transform operation may need to emit an additional bit of data at the end of the stream. For example, a zlib compression stream will store an amount of internal state used to optimally compress the output. When the stream ends, however, that additional data needs to be flushed so that the compressed data will be complete.
+   *
+   * Custom Transform implementations may implement the transform._flush() method. This will be called when there is no more written data to be consumed, but before the 'end' event is emitted signaling the end of the Readable stream.
+   *
+   * Within the transform._flush() implementation, the readable.push() method may be called zero or more times, as appropriate. The callback function must be called when the flush operation is complete.
+   *
+   * The transform._flush() method is prefixed with an underscore because it is internal to the class that defines it, and should never be called directly by user programs.
+   */
   public _flushEx(callback: (error?: Error | null, data?: any) => void): void {
+    callback();
+  }
+
+  /**
+   * This callback gets called when a NULL value comes through the stream indicating the end of the stream
+   * This optional function will be called before the stream closes, delaying the 'finish' event until callback is called. This is useful to close resources or write buffered data before a stream ends.
+   */
+  public _finalEx(callback: (error?: Error | null) => void): void {
     callback();
   }
 
@@ -68,10 +88,36 @@ export abstract class Transform<In, Out> extends NodeStream.Transform {
     });
   }
 
+  /**
+   * A callback function (optionally with an error argument and data) to be called when remaining data has been flushed.
+   * This function MUST NOT be called by application code directly. It should be implemented by child classes, and called by the internal Readable class methods only.
+   *
+   * In some cases, a transform operation may need to emit an additional bit of data at the end of the stream. For example, a zlib compression stream will store an amount of internal state used to optimally compress the output. When the stream ends, however, that additional data needs to be flushed so that the compressed data will be complete.
+   *
+   * Custom Transform implementations may implement the transform._flush() method. This will be called when there is no more written data to be consumed, but before the 'end' event is emitted signaling the end of the Readable stream.
+   *
+   * Within the transform._flush() implementation, the readable.push() method may be called zero or more times, as appropriate. The callback function must be called when the flush operation is complete.
+   *
+   * The transform._flush() method is prefixed with an underscore because it is internal to the class that defines it, and should never be called directly by user programs.
+   */
   public _flush(callback: (error?: Error | null, data?: any) => void): void {
     process.nextTick(() => {
       try {
         this._flushEx(callback);
+      } catch (err) {
+        callback(err);
+      }
+    });
+  }
+
+  /**
+   * This callback gets called when a NULL value comes through the stream indicating the end of the stream
+   * This optional function will be called before the stream closes, delaying the 'finish' event until callback is called. This is useful to close resources or write buffered data before a stream ends.
+   */
+  public _final(callback: (error?: Error | null) => void): void {
+    process.nextTick(() => {
+      try {
+        this._finalEx(callback);
       } catch (err) {
         callback(err);
       }
