@@ -36,6 +36,14 @@ export abstract class Writable<In> extends NodeStream.Writable {
     return commonToPromiseFinish.call(this);
   }
 
+  /**
+   * This callback gets called when a NULL value comes through the stream indicating the end of the stream
+   * This optional function will be called before the stream closes, delaying the 'finish' event until callback is called. This is useful to close resources or write buffered data before a stream ends.
+   */
+  public _finalEx(callback: (error?: Error | null) => void): void {
+    callback();
+  }
+
   public _writeEx(chunk: In, encoding: string, callback: (error?: Error | null) => void): void {
     this._baseWrite(chunk, encoding, callback);
   }
@@ -44,6 +52,20 @@ export abstract class Writable<In> extends NodeStream.Writable {
     process.nextTick(() => {
       try {
         this._writeEx(chunk, encoding, callback);
+      } catch (err) {
+        callback(err);
+      }
+    });
+  }
+
+  /**
+   * This callback gets called when a NULL value comes through the stream indicating the end of the stream
+   * This optional function will be called before the stream closes, delaying the 'finish' event until callback is called. This is useful to close resources or write buffered data before a stream ends.
+   */
+  public _final(callback: (error?: Error | null) => void): void {
+    process.nextTick(() => {
+      try {
+        this._finalEx(callback);
       } catch (err) {
         callback(err);
       }
