@@ -1,6 +1,6 @@
 {
   "name": "typed-streams",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Strongly typed streams so that streams are piped to the intended stream handlers",
   "private": false,
   "types": "dist/index.d.ts",
