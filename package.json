@@ -40,6 +40,7 @@
     "url": "git@github.com:hiro5id/typed-streams.git"
   },
   "dependencies": {
+    "error-ex": "git+https://github.com/Qix-/node-error-ex.git#1.3.2",
     "source-map-support": "^0.5.16"
   },
   "devDependencies": {
