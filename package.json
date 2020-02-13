@@ -11,7 +11,9 @@
     "npm": ">=6.4.1"
   },
   "files": [
-    "dist/src/**/*"
+    "dist/src/**/*",
+    "dist/index.d.ts",
+    "dist/index.js"
   ],
   "keywords": [
     "stream",
@@ -44,19 +46,26 @@
   },
   "devDependencies": {
     "@types/chai": "^4.2.3",
+    "@types/fs-extra": "^8.0.1",
     "@types/mocha": "^5.2.7",
+    "@types/mongodb": "^3.3.16",
     "@types/node": "^12.7.7",
     "@types/rimraf": "^2.0.2",
+    "@types/uuid": "^3.4.7",
     "chai": "^4.2.0",
     "create-ts-index": "^1.11.1",
     "error-ex": "git+https://github.com/Qix-/node-error-ex.git#1.3.2",
+    "fs-extra": "^8.1.0",
     "mocha": "^6.2.0",
+    "mongodb": "^3.5.3",
+    "mongodb-memory-server-core": "^6.2.4",
     "np": "^5.2.1",
     "prettier": "^1.18.2",
     "rimraf": "^3.0.0",
     "ts-node": "^8.4.1",
     "tslint": "^5.20.0",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.6.3"
+    "typescript": "^3.6.3",
+    "uuid": "^3.4.0"
   }
 }
