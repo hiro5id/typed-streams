@@ -26,7 +26,7 @@ export class MongodbMemoryServerCreator {
     this.tempDataDir = path.normalize(path.resolve(__dirname, '../../node_modules/.cache/mongodb-memory-server/mongodb-binaries', 'temp-db-data', uuid.v4()));
     this.binaryDir = path.normalize(path.resolve(__dirname, '../../node_modules/.cache/mongodb-memory-server/mongodb-binaries'));
 
-    console.log(`this.tempDataDir: ${this.tempDataDir} this.binaryDir: ${this.binaryDir}`);
+    console.log(`MongodbMemoryServerCreator.tempDataDir: ${this.tempDataDir} MongodbMemoryServerCreator.binaryDir: ${this.binaryDir}`);
   }
 
 

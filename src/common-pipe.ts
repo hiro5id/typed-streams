@@ -1,4 +1,4 @@
-export function commonPipe(returnStream: NodeJS.WritableStream) {
+export function commonPipe(returnStream: NodeJS.WritableStream, throwErrorForTesting = false) {
   (returnStream as any).parentStream = this;
   const that = this;
   that.on('error', (err: any) => {
@@ -29,5 +29,12 @@ export function commonPipe(returnStream: NodeJS.WritableStream) {
     // emit the error to downstream to signal error
     returnStream.emit('error-somewhere', err);
   });
+
+  if (throwErrorForTesting) {
+    setTimeout(() => {
+      that.emit('error', new Error('testing'));
+    }, 0);
+  }
+
   return returnStream;
 }

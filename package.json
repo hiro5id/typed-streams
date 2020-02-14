@@ -42,13 +42,13 @@
     "url": "git@github.com:hiro5id/typed-streams.git"
   },
   "dependencies": {
+    "@types/mongodb": "^3.3.16",
     "source-map-support": "^0.5.16"
   },
   "devDependencies": {
     "@types/chai": "^4.2.3",
     "@types/fs-extra": "^8.0.1",
     "@types/mocha": "^5.2.7",
-    "@types/mongodb": "^3.3.16",
     "@types/node": "^12.7.7",
     "@types/rimraf": "^2.0.2",
     "@types/uuid": "^3.4.7",
