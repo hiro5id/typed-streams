@@ -29,8 +29,32 @@ export abstract class Transform<In, Out> extends NodeStream.Transform {
     return super.push(chunk, encoding);
   }
 
-  public _transformEx(chunk: In, encoding: string, callback: (error?: Error | null, data?: any) => void): void {
-    this._baseTransform(chunk, encoding, callback);
+  public _transformEx(chunk: In, encoding: string, callback: (error?: Error | null, data?: any) => void): void;
+  public async _transformEx(chunk: In, encoding: string, callback?: (error?: Error | null, data?: any) => void): Promise<void> {
+    try {
+      await new Promise((resolve, reject) => {
+        this._baseTransform(chunk, encoding, (err?: any) => {
+          if (err != null) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+      });
+    } catch (err) {
+      if (callback != null) {
+        callback(err);
+        return;
+      } else {
+        throw err;
+      }
+    }
+
+    if (callback != null) {
+      callback();
+    } else {
+      return;
+    }
   }
 
   /**
@@ -81,7 +105,16 @@ export abstract class Transform<In, Out> extends NodeStream.Transform {
   public _transform(chunk: In, encoding: string, callback: (error?: Error | null, data?: any) => void): void {
     process.nextTick(() => {
       try {
-        this._transformEx(chunk, encoding, callback);
+        const result = this._transformEx(chunk, encoding, callback);
+        if (typeof result === 'object') {
+          ((result as any) as Promise<void>)
+            .then(() => {
+              callback();
+            })
+            .catch(err => {
+              callback(err);
+            });
+        }
       } catch (err) {
         callback(err);
       }
