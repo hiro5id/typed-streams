@@ -22,7 +22,7 @@
     "streams"
   ],
   "scripts": {
-    "prebuild": "cti create ./src",
+    "prebuild": "cti create ./src && rimraf **/index.ts.bak",
     "build": "npm run format:prettier && npm run lint && tsc -sourcemap",
     "test": "mocha \"dist/test/**/*.js\"",
     "build:watch": "tsc -w",
@@ -30,7 +30,7 @@
     "audit": "../../bin/npm-audit.sh",
     "prepublishOnly": "npm run clean && npm run install:prod && npm run build && npm run test && npm run prune:prod",
     "preversion": "npm run build && npm run test",
-    "format:prettier": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "format:prettier": "prettier --write \"src/**/*.ts\"",
     "lint": "tslint -p tsconfig.json",
     "install:prod": "npm ci",
     "prune:prod": "npm prune --production",
@@ -42,30 +42,31 @@
     "url": "git@github.com:hiro5id/typed-streams.git"
   },
   "dependencies": {
-    "@types/mongodb": "^3.3.16",
+    "@types/mongodb": "^3.5.6",
     "source-map-support": "^0.5.16"
   },
   "devDependencies": {
-    "@types/chai": "^4.2.3",
-    "@types/fs-extra": "^8.0.1",
-    "@types/mocha": "^5.2.7",
-    "@types/node": "^12.7.7",
-    "@types/rimraf": "^2.0.2",
-    "@types/uuid": "^3.4.7",
+    "@types/chai": "^4.2.11",
+    "@types/fs-extra": "^8.1.0",
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^13.11.1",
+    "@types/rimraf": "^3.0.0",
+    "@types/uuid": "^7.0.2",
     "chai": "^4.2.0",
-    "create-ts-index": "^1.11.1",
+    "create-ts-index": "^1.12.1",
     "error-ex": "git+https://github.com/Qix-/node-error-ex.git#1.3.2",
-    "fs-extra": "^8.1.0",
-    "mocha": "^6.2.0",
-    "mongodb": "^3.5.3",
-    "mongodb-memory-server-core": "^6.2.4",
-    "np": "^5.2.1",
-    "prettier": "^1.18.2",
-    "rimraf": "^3.0.0",
-    "ts-node": "^8.4.1",
-    "tslint": "^5.20.0",
+    "fs-extra": "^9.0.0",
+    "get-port": "^5.1.1",
+    "mocha": "^7.1.1",
+    "mongodb": "^3.5.6",
+    "mongodb-memory-server-core": "^6.5.2",
+    "np": "^6.2.1",
+    "prettier": "^2.0.4",
+    "rimraf": "^3.0.2",
+    "ts-node": "^8.8.2",
+    "tslint": "^6.1.1",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.6.3",
-    "uuid": "^3.4.0"
+    "typescript": "^3.8.3",
+    "uuid": "^7.0.3"
   }
 }

@@ -111,7 +111,7 @@ export abstract class Transform<In, Out> extends NodeStream.Transform {
             .then(() => {
               callback();
             })
-            .catch(err => {
+            .catch((err) => {
               callback(err);
             });
         }
