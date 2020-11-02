@@ -4,8 +4,6 @@ import { Db, MongoClient } from 'mongodb';
 import MongodbMemoryServer from 'mongodb-memory-server-core';
 import * as path from 'path';
 import * as uuid from 'uuid';
-// tslint:disable-next-line:no-require-imports
-import v4 = require('uuid/v4');
 
 // tslint:disable-next-line:no-var-requires no-require-imports
 const getPort = require('get-port');
@@ -111,7 +109,7 @@ export class MongodbMemoryServerCreator {
   }
 
   public getRandomDb(): Promise<Db> {
-    return this.getDb(v4());
+    return this.getDb(uuid.v4());
   }
 
   private deleteFolderRecursive(pathToDelete: string): void {
