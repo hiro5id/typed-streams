@@ -24,7 +24,7 @@ export abstract class Duplex<In, Out> extends NodeStream.Duplex {
     super(opts);
   }
 
-  public push(chunk: Out | null, encoding?: string): boolean {
+  public push(chunk: Out | null, encoding?: BufferEncoding): boolean {
     return super.push(chunk, encoding);
   }
 

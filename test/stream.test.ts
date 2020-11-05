@@ -430,7 +430,7 @@ class NewCarBuyer extends Transform<INewCar, IUsedCar[]> {
     callback();
   }
 
-  public _transformEx(chunk: INewCar, _encoding: string, callback: (error?: (Error | null), data?: any) => void): void {
+  public _transformEx(chunk: INewCar, _encoding: BufferEncoding, callback: (error?: (Error | null), data?: any) => void): void {
     this.newCars.push(chunk);
     this.messages.push(`shopping for NEW car#  ${chunk.newCarNumber}`);
     if (this.newCars.length >= this.numberOfCarsToBuyAtATime) {
@@ -461,7 +461,7 @@ class NewCarBuyerErr extends Transform<INewCar, IUsedCar[]> {
   }
 
   // tslint:disable-next-line:variable-name
-  public _transform(chunk: INewCar, _encoding: string, callback: (error?: (Error | null), data?: any) => void): void {
+  public _transform(chunk: INewCar, _encoding: BufferEncoding, callback: (error?: (Error | null), data?: any) => void): void {
     process.nextTick(() => {
       this.newCars.push(chunk);
       if (chunk.newCarNumber === 3) {
@@ -496,7 +496,7 @@ class UsedCarBuyer extends Transform<IUsedCar[], IUsedCar[]> {
   }
 
   // tslint:disable-next-line:variable-name
-  public _transform(chunk: IUsedCar[], _encoding: string, callback: (error?: (Error | null), data?: any) => void): void {
+  public _transform(chunk: IUsedCar[], _encoding: BufferEncoding, callback: (error?: (Error | null), data?: any) => void): void {
     process.nextTick(() => {
       chunk.forEach(c => this.newCars.push(c));
       this.messages.push(`shopping for USED car#  ${chunk.map(m => m.usedCarNumber).join(',')}`);
@@ -515,7 +515,7 @@ class UsedCarCrusher extends Writable<IUsedCar[]> {
     super({ objectMode: true });
   }
 
-  public _write(chunk: IUsedCar[], _encoding: string, callback: (error?: (Error | null)) => void): void {
+  public _write(chunk: IUsedCar[], _encoding: BufferEncoding, callback: (error?: (Error | null)) => void): void {
     process.nextTick(() => {
       this.messages.push(`crushing used cars # ${chunk.map(m => m.usedCarNumber).join(',')}`);
       callback();
@@ -545,7 +545,7 @@ class StolenCarBuyer extends Transform<IStolenCar, IUsedCar[]> {
   }
 
   // tslint:disable-next-line:variable-name
-  public _transform(chunk: IStolenCar, _encoding: string, callback: (error?: (Error | null), data?: any) => void): void {
+  public _transform(chunk: IStolenCar, _encoding: BufferEncoding, callback: (error?: (Error | null), data?: any) => void): void {
     process.nextTick(() => {
       this.newCars.push(chunk);
       this.messages.push(`shopping for stolen car# ${chunk.stolenCarNumber}`);
@@ -577,7 +577,7 @@ class StolenCarBuyerErrorEx extends Transform<IStolenCar, IUsedCar[]> {
     callback();
   }
 
-  public _transformEx(chunk: IStolenCar, _encoding: string, callback: (error?: (Error | null), data?: any) => void): void {
+  public _transformEx(chunk: IStolenCar, _encoding: BufferEncoding, callback: (error?: (Error | null), data?: any) => void): void {
     this.newCars.push(chunk);
     this.messages.push(`shopping for stolen car# ${chunk.stolenCarNumber}`);
     if (this.newCars.length >= this.numberOfCarsToBuyAtATime) {
@@ -596,7 +596,7 @@ class NewCarThief extends Transform<INewCar, IStolenCar> {
     super({ objectMode: true });
   }
 
-  public _transform(chunk: INewCar, encoding: string, callback: (error?: (Error | null), data?: any) => void): void {
+  public _transform(chunk: INewCar, encoding: BufferEncoding, callback: (error?: (Error | null), data?: any) => void): void {
     this.messages.push(`Stole new car number ${chunk.newCarNumber}`);
     this.push({ stolenCarNumber: chunk.newCarNumber }, encoding);
     callback();

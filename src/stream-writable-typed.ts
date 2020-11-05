@@ -16,7 +16,7 @@ export abstract class Writable<In> extends NodeStream.Writable {
    */
   public abstract readonly name: string;
 
-  private readonly _baseWrite: (chunk: any, encoding: string, callback: (error?: Error | null) => void) => void;
+  private readonly _baseWrite: (chunk: any, encoding: BufferEncoding, callback: (error?: Error | null) => void) => void;
   // noinspection TypeScriptAbstractClassConstructorCanBeMadeProtected
   constructor(opts = {}) {
     super(opts);
@@ -44,11 +44,11 @@ export abstract class Writable<In> extends NodeStream.Writable {
     callback();
   }
 
-  public _writeEx(chunk: In, encoding: string, callback: (error?: Error | null) => void): void {
+  public _writeEx(chunk: In, encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
     this._baseWrite(chunk, encoding, callback);
   }
 
-  public _write(chunk: In, encoding: string, callback: (error?: Error | null) => void): void {
+  public _write(chunk: In, encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
     process.nextTick(() => {
       try {
         this._writeEx(chunk, encoding, callback);

@@ -27,7 +27,7 @@ export abstract class Readable<Out> extends NodeStream.Readable {
 
   public abstract _read(size: number): any;
 
-  public push(chunk: Out | null, encoding?: string): boolean {
+  public push(chunk: Out | null, encoding?: BufferEncoding): boolean {
     return super.push(chunk, encoding);
   }
 

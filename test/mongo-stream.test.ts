@@ -67,7 +67,7 @@ class RobTestCollectionWriter extends Writable<IRobTestCollection> {
     super({ objectMode: true });
   }
 
-  _writeEx(chunk: IRobTestCollection, _encoding: string, callback: (error?: (Error | null)) => void): void {
+  _writeEx(chunk: IRobTestCollection, _encoding: BufferEncoding, callback: (error?: (Error | null)) => void): void {
     this.messages.push(`wrote ${chunk.name}`);
     callback();
   }

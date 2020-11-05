@@ -18,19 +18,19 @@ export abstract class Transform<In, Out> extends NodeStream.Transform {
    *   public readonly name: string = MyClass.name;
    */
   public abstract readonly name: string;
-  private readonly _baseTransform: (chunk: In, encoding: string, callback: NodeStream.TransformCallback) => void;
+  private readonly _baseTransform: (chunk: In, encoding: BufferEncoding, callback: NodeStream.TransformCallback) => void;
   // noinspection TypeScriptAbstractClassConstructorCanBeMadeProtected
   constructor(opts = {}) {
     super(opts);
     this._baseTransform = super._transform;
   }
 
-  public push(chunk: Out | null, encoding?: string): boolean {
+  public push(chunk: Out | null, encoding?: BufferEncoding): boolean {
     return super.push(chunk, encoding);
   }
 
-  public _transformEx(chunk: In, encoding: string, callback: (error?: Error | null, data?: any) => void): void;
-  public async _transformEx(chunk: In, encoding: string, callback?: (error?: Error | null, data?: any) => void): Promise<void> {
+  public _transformEx(chunk: In, encoding: BufferEncoding, callback: (error?: Error | null, data?: any) => void): void;
+  public async _transformEx(chunk: In, encoding: BufferEncoding, callback?: (error?: Error | null, data?: any) => void): Promise<void> {
     try {
       await new Promise((resolve, reject) => {
         this._baseTransform(chunk, encoding, (err?: any) => {
@@ -102,7 +102,7 @@ export abstract class Transform<In, Out> extends NodeStream.Transform {
     return commonToPromiseFinish.call(this);
   }
 
-  public _transform(chunk: In, encoding: string, callback: (error?: Error | null, data?: any) => void): void {
+  public _transform(chunk: In, encoding: BufferEncoding, callback: (error?: Error | null, data?: any) => void): void {
     process.nextTick(() => {
       try {
         const result = this._transformEx(chunk, encoding, callback);
